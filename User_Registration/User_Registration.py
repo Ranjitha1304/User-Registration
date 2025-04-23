@@ -4,22 +4,20 @@ def is_valid_username(username):
     return username.isalpha() and len(username) >= 3
 
 def is_valid_email(email):
-    # Basic email regex pattern
     pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
     return re.match(pattern, email) is not None
 
-def is_strong_password(password):
+def validate_password(password):
+    errors = []
     if len(password) < 8:
-        return False
+        errors.append("Password must be at least 8 characters long.")
     if not re.search(r'[A-Z]', password):
-        return False
+        errors.append("Password must contain at least one uppercase letter.")
     if not re.search(r'[a-z]', password):
-        return False
-    has_digit = re.search(r'[0-9]', password)
-    has_special = re.search(r'[!@#$%^&*(),.?":{}|<>]', password)
-    if not (has_digit or has_special):
-        return False
-    return True
+        errors.append("Password must contain at least one lowercase letter.")
+    if not re.search(r'[0-9]', password) and not re.search(r'[!@#$%^&*(),.?\":{}|<>]', password):
+        errors.append("Password must contain at least one digit or one special character.")
+    return errors
 
 def register_user():
     print("=== User Registration ===")
@@ -40,9 +38,12 @@ def register_user():
 
     while True:
         password = input("Enter password: ")
-        if not is_strong_password(password):
-            print("Password must be at least 8 characters long, with uppercase, lowercase, number or special character.")
+        password_errors = validate_password(password)
+        if password_errors:
+            for err in password_errors:
+                print(err)
             continue
+
         confirm_password = input("Confirm password: ")
         if password != confirm_password:
             print("Passwords do not match.")
@@ -53,7 +54,7 @@ def register_user():
     return {
         "username": username,
         "email": email,
-        "password": password  
+        "password": password
     }
 
 user_data = register_user()
